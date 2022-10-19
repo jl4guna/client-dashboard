@@ -1,9 +1,57 @@
-import { Link } from "@remix-run/react";
+import { Form, Link, useLoaderData } from "@remix-run/react";
+import invariant from "tiny-invariant";
+import { createClient, getClientListItems } from "~/models/client.server";
+import {
+  createCreditCard,
+  generateCCInfo,
+  getCreditCardListItems,
+} from "~/models/creditCard.server";
 
 import { useOptionalUser } from "~/utils";
+import { createAnalyst } from "../models/analyst.server";
+
+export async function action() {
+  const analyst = await createAnalyst({
+    name: "John Doe",
+    email: "asdatuy@asdasdqwasd",
+  });
+
+  const generatedCC = await generateCCInfo();
+  invariant(generatedCC, "No CC generated");
+
+  const creditCard = await createCreditCard(generatedCC);
+
+  const client = await createClient({
+    name: "Rey",
+    email: "testasdas@testaasdsaassda.com",
+    phone: "1234567890",
+    middleName: "test",
+    lastName: "test",
+    secondLastName: "test",
+    status: 0,
+    birthDate: new Date(),
+    analystId: analyst.id,
+    creditCardId: creditCard.id,
+  });
+
+  console.log({ client });
+  return null;
+}
+
+export async function loader() {
+  const clients = await getClientListItems();
+  const ccs = await getCreditCardListItems();
+
+  return { clients, ccs };
+}
 
 export default function Index() {
   const user = useOptionalUser();
+  const { clients, ccs } = useLoaderData<typeof loader>();
+
+  console.log({ clients });
+  console.log({ ccs });
+
   return (
     <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center">
       <div className="relative sm:pb-16 sm:pt-8">
@@ -49,6 +97,14 @@ export default function Index() {
                     >
                       Log In
                     </Link>
+
+                    <Form method="post">
+                      <input
+                        type="submit"
+                        className="flex items-center justify-center rounded-md bg-yellow-500 px-4 py-3 font-medium text-white hover:bg-yellow-600"
+                        value="Create Client"
+                      />
+                    </Form>
                   </div>
                 )}
               </div>
