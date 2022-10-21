@@ -1,5 +1,6 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
+import invariant from 'tiny-invariant';
 
 import type { User } from "~/models/user.server";
 
@@ -69,3 +70,104 @@ export function useUser(): User {
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
+
+export async function getClientProperties(request: Request) {
+  const formData = await request.formData();
+
+  const {
+    id,
+    action,
+    name,
+    email,
+    phone,
+    middleName,
+    lastName,
+    secondLastName,
+    status,
+    birthDate,
+    analystId,
+    creditCardId,
+  } = Object.fromEntries(formData);
+
+  const errors = {
+    email: email ? null : "Email is required",
+    name: name ? null : "Name is required",
+    phone: phone ? null : "Phone is required",
+    lastName: lastName ? null : "Last name is required",
+    secondLastName: secondLastName ? null : "Second last name is required",
+    birthDate: birthDate ? null : "Birth date is required",
+  };
+  const hasErrors = Object.values(errors).some((errorMessage) => errorMessage);
+
+  return {
+    client: {
+      id,
+      action,
+      name,
+      email,
+      phone,
+      middleName,
+      lastName,
+      secondLastName,
+      status,
+      birthDate,
+      analystId,
+      creditCardId,
+    },
+    hasErrors,
+    errors,
+  };
+}
+type ClientFromRequest = {
+  id?: FormDataEntryValue;
+  action?: FormDataEntryValue;
+  name: FormDataEntryValue;
+  email: FormDataEntryValue;
+  phone: FormDataEntryValue;
+  middleName: FormDataEntryValue;
+  lastName: FormDataEntryValue;
+  secondLastName: FormDataEntryValue;
+  status: FormDataEntryValue;
+  birthDate: FormDataEntryValue;
+  analystId?: FormDataEntryValue;
+};
+
+export async function validateClient(
+  {
+    name,
+    email,
+    phone,
+    middleName,
+    lastName,
+    secondLastName,
+    status,
+    birthDate,
+  }: ClientFromRequest,
+  creditCard?: string | FormDataEntryValue
+) {
+  invariant(typeof name === "string", "name must be a string");
+  invariant(validateEmail(email), "email must be a string");
+  invariant(typeof phone === "string", "phone must be a string");
+  invariant(typeof middleName === "string", "middleName must be a string");
+  invariant(typeof lastName === "string", "lastName must be a string");
+  invariant(
+    typeof secondLastName === "string",
+    "secondLastName must be a string"
+  );
+  invariant(typeof status === "string", "status must be a string");
+  invariant(typeof birthDate === "string", "birthDate must be a string");
+  invariant(typeof creditCard === "string", "creditCardId must be a string");
+
+  return {
+    name,
+    email,
+    phone,
+    middleName,
+    lastName,
+    secondLastName,
+    status: parseInt(status),
+    birthDate: new Date(birthDate),
+    creditCardId: creditCard,
+  };
+}
+

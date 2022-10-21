@@ -1,15 +1,22 @@
 import type { Client } from "@prisma/client";
 import { Form, useTransition } from "@remix-run/react";
 
+export type FormError = {
+  [key: string]: string | null;
+};
+
 type Props = {
   client?: Client;
+  errors?: FormError;
 };
 
 function addMissingDigit(digit: number) {
   return digit < 10 ? `0${digit}` : digit;
 }
 
-const ClientForm = ({ client }: Props) => {
+const ClientForm = ({ client, errors }: Props) => {
+  console.log({ errors });
+
   const transition = useTransition();
   const submittingAction = transition.submission?.formData.get("action");
   const isUpdating = submittingAction === "update";
