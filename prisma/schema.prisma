@@ -72,10 +72,10 @@ model Client {
   birthDate      DateTime
   status         Int
 
-  analyst   Analyst @relation(fields: [analystId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  analyst   Analyst @relation(fields: [analystId], references: [id])
   analystId String
 
-  creditCard   CreditCard @relation(fields: [creditCardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  creditCard   CreditCard @relation(fields: [creditCardId], references: [id])
   creditCardId String     @unique
 
   createdAt DateTime @default(now())

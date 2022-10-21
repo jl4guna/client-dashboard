@@ -1,4 +1,4 @@
-import type { Client } from "@prisma/client";
+import type { Analyst, Client } from "@prisma/client";
 import { Form, useTransition } from "@remix-run/react";
 
 export type FormError = {
@@ -8,15 +8,14 @@ export type FormError = {
 type Props = {
   client?: Client;
   errors?: FormError;
+  analysts: Analyst[];
 };
 
 function addMissingDigit(digit: number) {
   return digit < 10 ? `0${digit}` : digit;
 }
 
-const ClientForm = ({ client, errors }: Props) => {
-  console.log({ errors });
-
+const ClientForm = ({ client, errors, analysts }: Props) => {
   const transition = useTransition();
   const submittingAction = transition.submission?.formData.get("action");
   const isUpdating = submittingAction === "update";
@@ -101,14 +100,21 @@ const ClientForm = ({ client, errors }: Props) => {
         <option value={2}>Completed</option>
       </select>
 
-      <input
-        hidden
-        type="string"
+      <label htmlFor="analyst">Analyst</label>
+
+      <select
         name="analystId"
         id="analystId"
-        key={`${client?.id}-analystId`}
+        key={`${client?.id}-analyst`}
         defaultValue={client?.analystId}
-      />
+      >
+        {analysts.map((analyst) => (
+          <option key={analyst.id} value={analyst.id}>
+            {analyst.name}
+          </option>
+        ))}
+      </select>
+
       <input
         hidden
         type="string"

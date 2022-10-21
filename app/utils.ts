@@ -89,6 +89,9 @@ export async function getClientProperties(request: Request) {
     creditCardId,
   } = Object.fromEntries(formData);
 
+  console.log({ analystId });
+
+
   const errors = {
     email: email ? null : "Email is required",
     name: name ? null : "Name is required",
@@ -142,6 +145,7 @@ export async function validateClient(
     secondLastName,
     status,
     birthDate,
+    analystId,
   }: ClientFromRequest,
   creditCard?: string | FormDataEntryValue
 ) {
@@ -157,6 +161,7 @@ export async function validateClient(
   invariant(typeof status === "string", "status must be a string");
   invariant(typeof birthDate === "string", "birthDate must be a string");
   invariant(typeof creditCard === "string", "creditCardId must be a string");
+  invariant(typeof analystId === "string", "analystId must be a string");
 
   return {
     name,
@@ -168,6 +173,7 @@ export async function validateClient(
     status: parseInt(status),
     birthDate: new Date(birthDate),
     creditCardId: creditCard,
+    analystId
   };
 }
 
